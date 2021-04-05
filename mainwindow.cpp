@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-class TE
+class TM
 {
     private:
     double e=1,x,y,m,n,a,b;
@@ -12,16 +12,18 @@ class TE
 
 
 };
- double TE::Ex(double x,double y,double m,double n,double a,double b,double e)
+ double TM::Ex(double x,double y,double m,double n,double a,double b,double e)
  {
-     return (-e *((M_PI * m) / a)* cos((M_PI * m * x) / a) * sin((M_PI * n * y) / b))/(pow((m*M_PI/a),2)+pow((n*M_PI/b),2));
+      double K=pow(pow((m*M_PI/a),2)+pow((n*M_PI/b),2),0.5);//каппа
+
+     return (-e *K*((M_PI * m) / a)* cos((M_PI * m * x) / a) * sin((M_PI * n * y) / b))/(pow((m*M_PI/a),2)+pow((n*M_PI/b),2));
  }
- double TE::Ey(double x,double y,double m,double n,double a,double b,double e)
+ double TM::Ey(double x,double y,double m,double n,double a,double b,double e)
  {
      return (e*(n*M_PI/b)*sin((M_PI * m * x) / a) * cos((M_PI * n * y) / b))/(pow((m*M_PI/a),2)+pow((n*M_PI/b),2));
  }
-   TE exampleTE;
-   double m=2,n=1,a=20,b=10;
+   TM exampleTE;
+   double m=0,n=0,a=20,b=10;
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -34,12 +36,13 @@ MainWindow::MainWindow(QWidget *parent)
     yBegin_w1=0;
     xBegin_w2=0;
     yBegin_w2=0;
-    xEnd_w1=a+h;
-    xEnd_w2=a+h;
-    ui->widget->xAxis->setRange(0,21);
-    ui->widget->yAxis->setRange(0,50);
+    xEnd_w1=a;
+    xEnd_w2=a;
+    yEnd_w2=b;
+    ui->widget->xAxis->setRange(0,60);
+    ui->widget->yAxis->setRange(-60,60);
     ui->widget_2->xAxis->setRange(0,21);
-    ui->widget_2->yAxis->setRange(0,50);
+    ui->widget_2->yAxis->setRange(-50,50);
 
 }
 
@@ -52,6 +55,9 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
    //w1
+
+    m =ui->spinBox->value();
+    n =ui->spinBox_2->value();
     time=0;
     X=xBegin_w1;
     Y=yBegin_w1;
@@ -84,9 +90,9 @@ void MainWindow::TimerSlot_w1()
               x.push_back(X);
               y.push_back(exampleTE.Ey(X, Y, m, n, a, b, a));
               X+=h;
-              Y+=(h/2);
+             // Y+=(h/2);
        }
-       time+=(20/xEnd_w1);
+       time+=(20/x.size());
    }
    else
    {
@@ -101,17 +107,17 @@ void MainWindow::TimerSlot_w1()
 void MainWindow::TimerSlot_w2()
 {
     //Ex(y)
-   if(time<=20*xEnd_w2)
+   if(time<=20*yEnd_w2)
    {
 
-       if(X_w2<=xEnd_w2)
+       if(Y_w2<=yEnd_w2)
        {
-              x_w2.push_back( Y_w2);
+              x_w2.push_back(Y_w2);
               y_w2.push_back(exampleTE.Ex(X_w2, Y_w2, m, n, a, b, a));
-              X_w2+=h;
-              Y_w2+=(h/2);
+             // X_w2+=h;
+              Y_w2+=h;
        }
-       time+=20;
+       time+=(20/y_w2.size());
    }
    else
    {
@@ -133,3 +139,6 @@ void MainWindow::on_pushButton_2_clicked()
 {
 
 }
+
+
+
