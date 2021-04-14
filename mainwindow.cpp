@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     xEnd_w1=a;
     xEnd_w2=a;
     yEnd_w2=b;
+    yEnd_w1=10;
     ui->widget->xAxis->setRange(0,60);
     ui->widget->yAxis->setRange(-60,60);
     ui->widget_2->xAxis->setRange(0,21);
@@ -63,7 +64,10 @@ void MainWindow::on_pushButton_clicked()
     Y=yBegin_w1;
     x.clear();
     y.clear();
+
     timer_w1= new QTimer(this);
+    //ui->widget->setPen(QPen(QColor(Qt::red))); // Устанавливаем цвет графика
+   // ui->widget->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
     connect(timer_w1,SIGNAL(timeout()),this,SLOT(TimerSlot_w1()));
     ui->widget->clearGraphs();
     timer_w1->start(20);
@@ -81,29 +85,71 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::TimerSlot_w1()
 {
+    QVector<double> x2, y2;
+  /*  time+=50; // 50 - частота срабатывания таймера (в мс)
+        for(int i = 0; i < x.size(); i++)
+        {
+                if(time >= x[i])
+                {
+                    x2.push_back(x[i]);
+                    y2.push_back(y[i]);
+                    x.pop_front();
+                    y.pop_front();
+                    i = 0; // если во временном промежутке несколько подходящих "точек", то после pop_front() мы можем
+                    // упустить одну. i = 0 запускает заново цикл, чтобы ничего "не потерять"
+                }
+        }
+         ui->widget->graph(0)->setData(x2, y2);
+        //end of playback check
+        if(x.size() == 0) timer_w1->stop();
+        //
+         ui->widget->replot();
     //Ey(x)
-   if(time<=20*xEnd_w1)
+*/
+
+   if(time<=20*yEnd_w1)
    {
 
-       if(X<=xEnd_w1)
-       {
+        while(X<=xEnd_w1)
+            {
               x.push_back(X);
-              y.push_back(exampleTE.Ey(X, Y, m, n, a, b, a));
+              y.push_back(Y);
               X+=h;
-             // Y+=(h/2);
-       }
-       time+=(20/x.size());
+
+            }     // Y+=(h/2);
+
+        ui->widget->addGraph()->addData(x, y);
+
+      //  ui->widget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle , 10));
+        x.clear();
+        y.clear();
+       x.push_back(xEnd_w1/2-1);
+       y.push_back(Y+1);
+       x.push_back(xEnd_w1/2);
+       y.push_back(Y);
+       ui->widget->addGraph()->addData(x, y);
+
+       x.push_back(xEnd_w1/2-1);
+       y.push_back(Y-1);
+
+        ui->widget->addGraph()->addData(x, y);
+       x.clear();
+       y.clear();
+       Y+=3;
+        X=0;
+       time+=20;
    }
    else
    {
        time=0;
        timer_w1->stop();
+    }
 
-   }
-   ui->widget->addGraph();
-   ui->widget->graph(0)->addData(x,y);
+ //  ui->widget->addGraph()->setData(x, y);
    ui->widget->replot();
 }
+
+
 void MainWindow::TimerSlot_w2()
 {
     //Ex(y)
